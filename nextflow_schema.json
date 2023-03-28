@@ -16,9 +16,10 @@
                     "type": "string",
                     "format": "file-path",
                     "schema": "assets/schema_input.json",
-                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
+                    "description": "S3 directory containing fast5 files",
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/nanoseq/usage).",
-                    "default": "s3://somefolder"
+                    "default": "s3://somefolder",
+                    "fa_icon": "far fa-file-code"
                 },
                 "outdir": {
                     "type": "string",
@@ -42,12 +43,6 @@
             "default": "",
             "fa_icon": "fab fa-autoprefixer",
             "properties": {
-                "input_path": {
-                    "type": "string",
-                    "format": "file-path",
-                    "description": "Path to Nanopore run directory files (e.g. 'fastq_pass/*') or a basecalled fastq file that requires demultiplexing. The latter can only be provided in conjunction with the '--skip_basecalling' parameter.",
-                    "fa_icon": "far fa-file-code"
-                },
                 "flowcell": {
                     "type": "string",
                     "description": "Flowcell used to perform the sequencing e.g. 'FLO-MIN106'. Not required if '--guppy_config' is specified.",
