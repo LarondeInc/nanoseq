@@ -97,15 +97,6 @@ if (params.call_variants) {
     }
 }
 
-if (!params.skip_quantification) {
-    if (params.quantification_method != 'bambu' && params.quantification_method != 'stringtie2') {
-        exit 1, "Invalid transcript quantification option: ${params.quantification_method}. Valid options: 'bambu', 'stringtie2'"
-    }
-    if (params.protocol != 'cDNA' && params.protocol != 'directRNA') {
-        exit 1, "Invalid protocol option if performing quantification: ${params.protocol}. Valid options: 'cDNA', 'directRNA'"
-    }
-}
-
 ////////////////////////////////////////////////////
 /* --          CONFIG FILES                    -- */
 ////////////////////////////////////////////////////
