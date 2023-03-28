@@ -272,31 +272,6 @@ workflow NANOSEQ{
         }
     }
 
-    if (params.run_nanolyse) {
-        ch_fastq
-            .map { it -> [ it[0], it[1] ] }
-            .set { ch_fastq_nanolyse }
-
-        if (!params.nanolyse_fasta) {
-            if (!isOffline()) {
-                GET_NANOLYSE_FASTA ().set { ch_nanolyse_fasta }
-            } else {
-                exit 1, "NXF_OFFLINE=true or -offline has been set so cannot download lambda.fasta.gz file for running NanoLyse! Please explicitly specify --nanolyse_fasta."
-            }
-        } else {
-            ch_nanolyse_fasta = file(params.nanolyse_fasta, checkIfExists: true)
-        }
-        /*
-         * MODULE: DNA contaminant removal using NanoLyse
-         */
-        NANOLYSE ( ch_fastq_nanolyse, ch_nanolyse_fasta )
-        NANOLYSE.out.fastq
-            .join( ch_sample )
-            .map { it -> [ it[0], it[1], it[3], it[4], it[5], it[6] ]}
-            .set { ch_fastq }
-        ch_software_versions = ch_software_versions.mix(NANOLYSE.out.versions.first().ifEmpty(null))
-    }
-
     ch_pycoqc_multiqc = Channel.empty()
     ch_fastqc_multiqc = Channel.empty()
     
@@ -304,83 +279,6 @@ workflow NANOSEQ{
     
     ch_featurecounts_gene_multiqc       = Channel.empty()
     ch_featurecounts_transcript_multiqc = Channel.empty()
-    if (!params.skip_quantification && (params.protocol == 'cDNA' || params.protocol == 'directRNA')) {
-
-        // Check that reference genome and annotation are the same for all samples if perfoming quantification
-        // Check if we have replicates and multiple conditions in the input samplesheet
-        REPLICATES_EXIST    = false
-        MULTIPLE_CONDITIONS = false
-        ch_sample.map{ it[2] }.unique().toList().set { fastas }
-        ch_sample.map{ it[3] }.unique().toList().set { gtfs }
-        // BUG: ".val" halts the pipeline ///////////////////////
-        //  if ( gtfs.map{it[0]} == false || fastas.map{it[0]} == false || gtfs.size().val != 1 || fasta.size().val != 1 ) {
-        //      exit 1, """Quantification can only be performed if all samples in the samplesheet have the same reference fasta and GTF file."
-        //              Please specify the '--skip_quantification' parameter if you wish to skip these steps."""
-        //  }
-        //  REPLICATES_EXIST    = ch_sample.map { it -> it[0].split('_')[-1].replaceAll('R','').toInteger() }.max().val > 1
-        //  MULTIPLE_CONDITIONS = ch_sample.map { it -> it[0].split('_')[0..-2].join('_') }.unique().count().val > 1
-
-        ch_r_version = Channel.empty()
-        if (params.quantification_method == 'bambu') {
-            ch_sample
-                .map { it -> [ it[2], it[3] ]}
-                .unique()
-                .set { ch_sample_annotation }
-
-            /*
-             * MODULE: Quantification and novel isoform detection with bambu
-             */
-            BAMBU ( ch_sample_annotation, ch_sortbam.collect{ it [1] } )
-            ch_gene_counts       = BAMBU.out.ch_gene_counts
-            ch_transcript_counts = BAMBU.out.ch_transcript_counts
-            ch_software_versions = ch_software_versions.mix(BAMBU.out.versions.first().ifEmpty(null))
-        } else {
-
-            /*
-             * SUBWORKFLOW: Novel isoform detection with StringTie and Quantification with featureCounts
-             */
-            QUANTIFY_STRINGTIE_FEATURECOUNTS( ch_sample, ch_sortbam )
-            ch_gene_counts                      = QUANTIFY_STRINGTIE_FEATURECOUNTS.out.ch_gene_counts
-            ch_transcript_counts                = QUANTIFY_STRINGTIE_FEATURECOUNTS.out.ch_transcript_counts
-            ch_software_versions                = ch_software_versions.mix(QUANTIFY_STRINGTIE_FEATURECOUNTS.out.stringtie2_version.first().ifEmpty(null))
-            ch_software_versions                = ch_software_versions.mix(QUANTIFY_STRINGTIE_FEATURECOUNTS.out.featurecounts_version.first().ifEmpty(null))
-            ch_featurecounts_gene_multiqc       = QUANTIFY_STRINGTIE_FEATURECOUNTS.out.featurecounts_gene_multiqc.ifEmpty([])
-            ch_featurecounts_transcript_multiqc = QUANTIFY_STRINGTIE_FEATURECOUNTS.out.featurecounts_transcript_multiqc.ifEmpty([])
-        }
-        if (!params.skip_differential_analysis) {
-
-            /*
-             * SUBWORKFLOW: Differential gene and transcript analysis with DESeq2 and DEXseq
-             */
-            DIFFERENTIAL_DESEQ2_DEXSEQ( ch_gene_counts, ch_transcript_counts )
-            ch_software_versions = ch_software_versions.mix(DIFFERENTIAL_DESEQ2_DEXSEQ.out.deseq2_version.first().ifEmpty(null))
-            ch_software_versions = ch_software_versions.mix(DIFFERENTIAL_DESEQ2_DEXSEQ.out.dexseq_version.first().ifEmpty(null))
-        }
-    }
-
-    if (!params.skip_modification_analysis && params.protocol == 'directRNA') {
-
-        /*
-         * SUBWORKFLOW: RNA modification detection with xPore and m6anet
-         */
-        RNA_MODIFICATION_XPORE_M6ANET( ch_sample, ch_nanopolish_sortbam )
-    }
-
-    if (!params.skip_fusion_analysis && (params.protocol == 'cDNA' || params.protocol == 'directRNA')) {
-
-        /*
-         * SUBWORKFLOW: RNA_FUSIONS_JAFFAL
-         */
-        RNA_FUSIONS_JAFFAL( ch_sample, params.jaffal_ref_dir )
-    }
-
-    /*
-     * MODULE: Parse software version numbers
-     */
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_software_versions.unique().collectFile()
-    )
-
     if (!params.skip_multiqc) {
         workflow_summary    = WorkflowNanoseq.paramsSummaryMultiqc(workflow, summary_params)
         ch_workflow_summary = Channel.value(workflow_summary)
