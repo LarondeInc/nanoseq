@@ -11,14 +11,14 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 ////////////////////////////////////////////////////
 
 // Check input path parameters to see if they exist
-checkPathParamList = [ params.input, params.multiqc_config ]
+checkPathParamList = [ params.input ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters (missing protocol or profile will exit the run.)
 if (params.input) { 
     ch_input = file(params.input) 
 } else {
-    exit 1, 'Input samplesheet not specified!'
+    exit 1, 'Input folder is not specified!'
 }
 
 // Function to check if running offline
@@ -31,69 +31,13 @@ def isOffline() {
     }
 }
 
-def ch_guppy_model  = Channel.empty()
 def ch_guppy_config = Channel.empty()
-
-if (params.protocol != 'DNA' && params.protocol != 'cDNA' && params.protocol != 'directRNA') {
-    exit 1, "Invalid protocol option: ${params.protocol}. Valid options: 'DNA', 'cDNA', 'directRNA'"
-}
 
 if (!params.skip_basecalling) {
     if (!params.guppy_config) {
-        if (!params.flowcell) { exit 1, "Please specify a valid flowcell identifier for basecalling!" }
-        if (!params.kit)      { exit 1, "Please specify a valid kit identifier for basecalling!"      }
+        exit 1, 'No guppy config file!'
     } else if (file(params.guppy_config).exists()) {
         ch_guppy_config = Channel.fromPath(params.guppy_config)
-    }
-
-    if (params.guppy_model) {
-        if (file(params.guppy_model).exists()) {
-            ch_guppy_model = Channel.fromPath(params.guppy_model)
-        }
-    }
-} else {
-    if (!params.skip_demultiplexing) {
-        if (!params.barcode_kit) {
-            params.barcode_kit = 'Auto'
-        }
-
-        def qcatBarcodeKitList = ['Auto', 'RBK001', 'RBK004', 'NBD103/NBD104',
-                                'NBD114', 'NBD104/NBD114', 'PBC001', 'PBC096',
-                                'RPB004/RLB001', 'PBK004/LWB001', 'RAB204', 'VMK001', 'DUAL']
-
-        if (params.barcode_kit && qcatBarcodeKitList.contains(params.barcode_kit)) {
-            if (params.input_path) {
-                ch_input_path = Channel.fromPath(params.input_path, checkIfExists: true)
-            } else {
-                exit 1, "Please specify a valid input fastq file to perform demultiplexing!"
-            }
-        } else {
-            exit 1, "Please provide a barcode kit to demultiplex with qcat. Valid options: ${qcatBarcodeKitList}"
-        }
-    }
-}
-
-if (!params.skip_alignment) {
-    if (params.aligner != 'minimap2' && params.aligner != 'graphmap2') {
-        exit 1, "Invalid aligner option: ${params.aligner}. Valid options: 'minimap2', 'graphmap2'"
-    }
-    if (params.protocol != 'DNA' && params.protocol != 'cDNA' && params.protocol != 'directRNA') {
-        exit 1, "Invalid protocol option: ${params.protocol}. Valid options: 'DNA', 'cDNA', 'directRNA'"
-    }
-}
-
-if (params.call_variants) {
-    if (params.protocol != 'DNA') {
-        exit 1, "Invalid protocol option: ${params.protocol}. Valid options: 'DNA'"
-    }
-    if (!params.skip_vc && params.variant_caller != 'medaka' && params.variant_caller != 'deepvariant' && params.variant_caller != 'pepper_margin_deepvariant') {
-        exit 1, "Invalid variant caller option: ${params.variant_caller}. Valid options: 'medaka', 'deepvariant' or 'pepper_margin_deepvariant'"
-    }
-    if (!params.skip_sv && params.structural_variant_caller != 'sniffles' && params.structural_variant_caller != 'cutesv') {
-        exit 1, "Invalid structural variant caller option: ${params.structural_variant_caller}. Valid options: 'sniffles', 'cutesv"
-    }
-    if (!params.skip_vc && params.enable_conda && params.variant_caller != 'medaka') {
-        exit 1, "Conda environments cannot be used when using the deepvariant or pepper_margin_deepvariant tools. Valid options: 'docker', 'singularity'"
     }
 }
 
@@ -101,41 +45,18 @@ if (params.call_variants) {
 /* --          CONFIG FILES                    -- */
 ////////////////////////////////////////////////////
 
-ch_multiqc_config        = file("$baseDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
-
 ////////////////////////////////////////////////////
 /* --    IMPORT LOCAL MODULES/SUBWORKFLOWS     -- */
 ////////////////////////////////////////////////////
 
 include { GET_TEST_DATA         } from '../modules/local/get_test_data'
-include { GET_NANOLYSE_FASTA    } from '../modules/local/get_nanolyse_fasta'
 include { GUPPY                 } from '../modules/local/guppy'
-include { DEMUX_FAST5           } from '../modules/local/demux_fast5'
-include { QCAT                  } from '../modules/local/qcat'
-include { BAM_RENAME            } from '../modules/local/bam_rename'
-include { BAMBU                 } from '../modules/local/bambu'
-include { MULTIQC               } from '../modules/local/multiqc'
 
 /*
  * SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
  */
 
 include { INPUT_CHECK                      } from '../subworkflows/local/input_check'
-include { PREPARE_GENOME                   } from '../subworkflows/local/prepare_genome'
-include { QCBASECALL_PYCOQC_NANOPLOT       } from '../subworkflows/local/qcbasecall_pycoqc_nanoplot'
-include { QCFASTQ_NANOPLOT_FASTQC          } from '../subworkflows/local/qcfastq_nanoplot_fastqc'
-include { ALIGN_GRAPHMAP2                  } from '../subworkflows/local/align_graphmap2'
-include { ALIGN_MINIMAP2                   } from '../subworkflows/local/align_minimap2'
-include { BAM_SORT_INDEX_SAMTOOLS          } from '../subworkflows/local/bam_sort_index_samtools'
-include { SHORT_VARIANT_CALLING            } from '../subworkflows/local/short_variant_calling'
-include { STRUCTURAL_VARIANT_CALLING       } from '../subworkflows/local/structural_variant_calling'
-include { BEDTOOLS_UCSC_BIGWIG             } from '../subworkflows/local/bedtools_ucsc_bigwig'
-include { BEDTOOLS_UCSC_BIGBED             } from '../subworkflows/local/bedtools_ucsc_bigbed'
-include { QUANTIFY_STRINGTIE_FEATURECOUNTS } from '../subworkflows/local/quantify_stringtie_featurecounts'
-include { DIFFERENTIAL_DESEQ2_DEXSEQ       } from '../subworkflows/local/differential_deseq2_dexseq'
-include { RNA_MODIFICATION_XPORE_M6ANET    } from '../subworkflows/local/rna_modifications_xpore_m6anet'
-include { RNA_FUSIONS_JAFFAL               } from '../subworkflows/local/rna_fusions_jaffal'
 
 ////////////////////////////////////////////////////
 /* --    IMPORT NF-CORE MODULES/SUBWORKFLOWS   -- */
@@ -144,8 +65,6 @@ include { RNA_FUSIONS_JAFFAL               } from '../subworkflows/local/rna_fus
 /*
  * MODULE: Installed directly from nf-core/modules
  */
-include { NANOLYSE                    } from '../modules/nf-core/modules/nanolyse/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
 /*
  * SUBWORKFLOW: Consisting entirely of nf-core/modules
@@ -156,7 +75,6 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 ////////////////////////////////////////////////////
 
 // Info required for completion email and summary
-def multiqc_report      = []
 
 workflow NANOSEQ{
 
@@ -261,33 +179,6 @@ workflow NANOSEQ{
                 ch_fastq = Channel.empty()
             }
         }
-    }
-
-    ch_pycoqc_multiqc = Channel.empty()
-    ch_fastqc_multiqc = Channel.empty()
-    
-    ch_samtools_multiqc = Channel.empty()
-    
-    ch_featurecounts_gene_multiqc       = Channel.empty()
-    ch_featurecounts_transcript_multiqc = Channel.empty()
-    if (!params.skip_multiqc) {
-        workflow_summary    = WorkflowNanoseq.paramsSummaryMultiqc(workflow, summary_params)
-        ch_workflow_summary = Channel.value(workflow_summary)
-
-        /*
-         * MODULE: MultiQC
-         */
-        MULTIQC (
-        ch_multiqc_config,
-        ch_multiqc_custom_config.collect().ifEmpty([]),
-        ch_pycoqc_multiqc.collect().ifEmpty([]),
-        ch_fastqc_multiqc.ifEmpty([]),
-        ch_samtools_multiqc.collect().ifEmpty([]),
-        ch_featurecounts_gene_multiqc.ifEmpty([]),
-        ch_featurecounts_transcript_multiqc.ifEmpty([]),
-        CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect(),
-        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml')
-        )
     }
 }
 
