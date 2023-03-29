@@ -43,42 +43,10 @@
             "default": "",
             "fa_icon": "fab fa-autoprefixer",
             "properties": {
-                "flowcell": {
-                    "type": "string",
-                    "description": "Flowcell used to perform the sequencing e.g. 'FLO-MIN106'. Not required if '--guppy_config' is specified.",
-                    "fa_icon": "fas fa-band-aid"
-                },
-                "kit": {
-                    "type": "string",
-                    "description": "Kit used to perform the sequencing e.g. 'SQK-LSK109'. Not required if '--guppy_config' is specified.",
-                    "fa_icon": "fas fa-barcode"
-                },
-                "barcode_kit": {
-                    "type": "string",
-                    "description": "Barcode kit used to perform the sequencing e.g. 'SQK-PBK004'.",
-                    "help_text": "If you would like to skip the basecalling (`--skip_basecalling`) but still perform the demultiplexing please specify a barcode kit that can be recognised by [qcat](https://github.com/nanoporetech/qcat):\n\n| `qcat` barcode kit specifications | description                                                                   |\n|-----------------------------------|-------------------------------------------------------------------------------|\n| `Auto`                            | Auto detect barcoding kit                                                     |\n| `RBK001`                          | Rapid barcoding kit                                                           |\n| `RBK004`                          | Rapid barcoding kit v4                                                        |\n| `NBD103/NBD104`                   | Native barcoding kit with barcodes 1-12                                       |\n| `NBD114`                          | Native barcoding kit with barcodes 13-24                                      |\n| `NBD104/NBD114`                   | Native barcoding kit with barcodes 1-24                                       |\n| `PBC001`                          | PCR barcoding kits with 12 barcodes                                           |\n| `PBC096`                          | PCR barcoding kits with 96 barcodes                                           |\n| `RPB004/RLB001`                   | Rapid PCR Barcoding Kit (SQK-RPB004) and Rapid Low Input by PCR Barcoding Kit |\n| `RPB004/LWB001`                   | Low Input by PCR Barcoding Kit                                                |\n| `RAB204`                          | 16S Rapid Amplicon Barcoding Kit with 12 Barcodes                             |\n| `VMK001`                          | Voltrax Barcoding Kit with 4 barcodes                                         |",
-                    "fa_icon": "fas fa-barcode"
-                },
-                "barcode_both_ends": {
-                    "type": "boolean",
-                    "fa_icon": "fas fa-barcode",
-                    "description": "Require barcode on both ends for Guppy basecaller."
-                },
-                "trim_barcodes": {
-                    "type": "boolean",
-                    "fa_icon": "fas fa-barcode",
-                    "description": "Whether to trim the barcodes from the output sequences in the FastQ files from Guppy basecaller."
-                },
                 "guppy_config": {
                     "type": "string",
                     "help_text": "Cannot be used in conjunction with `--flowcell` and `--kit`. This can be a local file (e.g. `/your/dir/guppy_conf.cfg`) or a string specifying a configuration stored in the `/opt/ont/guppy/data/` directory of Guppy.",
                     "description": "Config file used for basecalling that will be passed to Guppy via the '--config' parameter.",
-                    "fa_icon": "fas fa-fish"
-                },
-                "guppy_model": {
-                    "type": "string",
-                    "description": "Custom basecalling model file in `json` format that will be passed to Guppy via the '--model' parameter.",
-                    "help_text": "Custom basecalling models can be trained with software such as [Taiyaki](https://github.com/nanoporetech/taiyaki). This can also be a string specifying a model stored in the `/opt/ont/guppy/data` directory of Guppy.",
                     "fa_icon": "fas fa-fish"
                 },
                 "guppy_gpu": {
@@ -113,17 +81,6 @@
                     "type": "boolean",
                     "description": "Demultiplex fast5 files with demux_fast5.",
                     "fa_icon": "fas fa-file-code"
-                },
-                "qcat_min_score": {
-                    "type": "integer",
-                    "default": 60,
-                    "description": "Specify the minimum quality score for qcat in the range 0-100.",
-                    "fa_icon": "fas fa-cut"
-                },
-                "skip_basecalling": {
-                    "type": "boolean",
-                    "description": "Skip basecalling with Guppy.",
-                    "fa_icon": "fas fa-fast-forward"
                 },
                 "skip_demultiplexing": {
                     "type": "boolean",
