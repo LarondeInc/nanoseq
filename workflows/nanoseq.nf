@@ -49,14 +49,11 @@ if (!params.skip_basecalling) {
 /* --    IMPORT LOCAL MODULES/SUBWORKFLOWS     -- */
 ////////////////////////////////////////////////////
 
-include { GET_TEST_DATA         } from '../modules/local/get_test_data'
 include { GUPPY                 } from '../modules/local/guppy'
 
 /*
  * SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
  */
-
-include { INPUT_CHECK                      } from '../subworkflows/local/input_check'
 
 ////////////////////////////////////////////////////
 /* --    IMPORT NF-CORE MODULES/SUBWORKFLOWS   -- */
@@ -81,13 +78,10 @@ workflow NANOSEQ{
     // Pre-download test-dataset to get files for '--input_path' parameter
     // Nextflow is unable to recursively download directories via HTTPS
     if (workflow.profile.contains('test') && !workflow.profile.contains('vc')) {
-        if (!params.skip_basecalling || !params.skip_modification_analysis) {
+        if (!params.skip_basecalling) {
             if (!isOffline()) {
                 GET_TEST_DATA ()
-                if (params.skip_modification_analysis) {
-                    GET_TEST_DATA.out.ch_input_fast5s_path
-                        .set { ch_input_path }
-                } else {
+                {
                     GET_TEST_DATA.out.ch_input_dir_path
                         .set { ch_input_path }
                 }
