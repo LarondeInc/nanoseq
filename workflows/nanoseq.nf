@@ -55,6 +55,8 @@ include { GUPPY                 } from '../modules/local/guppy'
  * SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
  */
 
+//include { INPUT_CHECK                      } from '../subworkflows/local/input_check'                       addParams( options: [:] )
+
 ////////////////////////////////////////////////////
 /* --    IMPORT NF-CORE MODULES/SUBWORKFLOWS   -- */
 ////////////////////////////////////////////////////
@@ -111,8 +113,8 @@ workflow NANOSEQ{
     /*
      * SUBWORKFLOW: Read in samplesheet, validate and stage input files
      */
-    //INPUT_CHECK ( ch_input, ch_input_path )
-    //    .set { ch_sample }
+    INPUT_CHECK ( ch_input, ch_input_path )
+        .set { ch_sample }
 
     if (!params.skip_basecalling) {
         //ch_sample
@@ -120,7 +122,6 @@ workflow NANOSEQ{
         //    .map { it[0] }
         //    .set { ch_sample_name }
         ch_sample_name = "test"
-
         /*
          * MODULE: Basecalling and demultipexing using Guppy
          */
@@ -128,11 +129,12 @@ workflow NANOSEQ{
         ch_guppy_summary = GUPPY.out.summary
         ch_software_versions = ch_software_versions.mix(GUPPY.out.versions.ifEmpty(null))
 
-        if (params.skip_demultiplexing) {
-            ch_sample
-                .map { it -> [ it[0], it[0].id, it[2], it[3], it[4], it[5] ] }
-                .set { ch_sample }
-        }
+        //if (params.skip_demultiplexing) {
+        //    ch_sample
+        //        .map { it -> [ it[0], it[0].id, it[2], it[3], it[4], it[5] ] }
+        //        .set { ch_sample }
+        //}
+        ch_sample = "test"
 
         GUPPY.out.fastq
             .flatten()
@@ -141,7 +143,6 @@ workflow NANOSEQ{
             .map { it -> [ it[2], it[1], it[3], it[4], it[5], it[6] ] }
             .set { ch_fastq }
         if (params.output_demultiplex_fast5) {
-
             /*
             * MODULE: Demultiplex fast5 files using ont_fast5_api/demux_fast5
             */
