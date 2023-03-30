@@ -55,7 +55,6 @@ include { GUPPY                 } from '../modules/local/guppy'
  * SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
  */
 
-//include { INPUT_CHECK                      } from '../subworkflows/local/input_check'                       addParams( options: [:] )
 
 ////////////////////////////////////////////////////
 /* --    IMPORT NF-CORE MODULES/SUBWORKFLOWS   -- */
@@ -113,9 +112,7 @@ workflow NANOSEQ{
     /*
      * SUBWORKFLOW: Read in samplesheet, validate and stage input files
      */
-    //INPUT_CHECK ( ch_input, ch_input_path )
-    //    .set { ch_sample }
-
+    
     if (!params.skip_basecalling) {
         //ch_sample
         //    .first()
