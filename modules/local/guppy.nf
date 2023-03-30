@@ -29,34 +29,15 @@ process GUPPY {
     """
     guppy_basecaller \\
         --input_path $fast5_dir_path \\
-	--compress_fastq \\
+	    --compress_fastq \\
         --save_path ./fastq \\
         --compress_fastq \\
         --recursive \\
-	--device "cuda:all" \\
-	--do_read_splitting \\
-	--max_read_depth 2 \\
-	--min_score_read_splitting 58 \\
+	    --do_read_splitting \\
+	    --max_read_depth 2 \\
+	    --min_score_read_splitting 58 \\
         $config
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        guppy: \$(echo \$(guppy_basecaller --version 2>&1) | sed -r 's/.{81}//')
-    END_VERSIONS
-
-    ## Concatenate fastq files
-    mkdir fastq
-    cd basecalling
-    if [ "\$(find . -type d -name "barcode*" )" != "" ]
-    then
-        for dir in pass/barcode*/
-        do
-            dir=\$(basename \${dir%*/})
-            cat pass/\$dir/*.fastq.gz > ../fastq/\$dir.fastq.gz
-        done
-    else
-        cat pass/*.fastq.gz > ../fastq/${meta.id}.fastq.gz
-    fi
     """
 }
 
