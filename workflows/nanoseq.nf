@@ -139,7 +139,7 @@ workflow NANOSEQ{
         GUPPY.out.fastq
             .flatten()
             .map { it -> [ it, it.baseName.substring(0,it.baseName.lastIndexOf('.')) ] }
-            .join(ch_sample, by: 1) // join on barcode
+            //.join(ch_sample, by: 1) // join on barcode
             .map { it -> [ it[2], it[1], it[3], it[4], it[5], it[6] ] }
             .set { ch_fastq }
         if (params.output_demultiplex_fast5) {
