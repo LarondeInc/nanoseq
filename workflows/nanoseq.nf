@@ -16,7 +16,6 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 //checkPathParamList = [ params.input ]
 //for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
-def ch_guppy_config = Channel.empty()
 
 // Check mandatory parameters (missing protocol or profile will exit the run.)
 if (params.input) { 
