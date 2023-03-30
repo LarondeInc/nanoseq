@@ -124,7 +124,7 @@ workflow NANOSEQ{
         /*
          * MODULE: Basecalling and demultipexing using Guppy
          */
-        GUPPY ( ch_input_path, ch_sample_name, ch_guppy_config.ifEmpty([]), ch_guppy_model.ifEmpty([]) )
+        GUPPY ( ch_input_path, ch_sample_name, ch_guppy_config.ifEmpty([]))
         ch_guppy_summary = GUPPY.out.summary
         ch_software_versions = ch_software_versions.mix(GUPPY.out.versions.ifEmpty(null))
 
@@ -165,14 +165,6 @@ workflow NANOSEQ{
                 .map { it -> [ it[2], it[1], it[3], it[4], it[5], it[6] ] }
                 .set { ch_fastq }
             ch_software_versions = ch_software_versions.mix(QCAT.out.versions.ifEmpty(null))
-        } else {
-            if (!params.skip_alignment) {
-                ch_sample
-                    .map { it -> if (it[6].toString().endsWith('.gz')) [ it[0], it[6], it[2], it[1], it[4], it[5] ] }
-                    .set { ch_fastq }
-            } else {
-                ch_fastq = Channel.empty()
-            }
         }
     }
 }
