@@ -33,7 +33,6 @@ process GUPPY {
         --compress_fastq \\
         --recursive \\
 	    --do_read_splitting \\
-	    --max_read_depth 2 \\
 	    --min_score_read_splitting 58 \\
         $config
     """
