@@ -115,10 +115,11 @@ workflow NANOSEQ{
     //    .set { ch_sample }
 
     if (!params.skip_basecalling) {
-        ch_sample
-            .first()
-            .map { it[0] }
-            .set { ch_sample_name }
+        //ch_sample
+        //    .first()
+        //    .map { it[0] }
+        //    .set { ch_sample_name }
+        ch_sample_name = "test"
 
         /*
          * MODULE: Basecalling and demultipexing using Guppy
