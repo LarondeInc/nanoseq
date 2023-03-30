@@ -2,10 +2,10 @@ process GUPPY {
     label 'process_medium'
 
     if (params.guppy_gpu) {
-        container = 'genomicpariscentre/guppy-gpu:5.0.16'
+        container = 'genomicpariscentre/guppy-gpu:6.4.6'
         clusterOptions = params.gpu_cluster_options
     } else {
-        container = 'genomicpariscentre/guppy:5.0.16'
+        container = 'genomicpariscentre/guppy:6.4.6'
     }
 
     input:
