@@ -43,6 +43,11 @@
             "default": "",
             "fa_icon": "fab fa-autoprefixer",
             "properties": {
+                "barcode_kit": {
+                    "type": "string",
+                    "description": "Name of barcode kit",
+                    "fa_icon": "fas fa-barcode"
+                },
                 "guppy_config": {
                     "type": "string",
                     "help_text": "Cannot be used in conjunction with `--flowcell` and `--kit`. This can be a local file (e.g. `/your/dir/guppy_conf.cfg`) or a string specifying a configuration stored in the `/opt/ont/guppy/data/` directory of Guppy.",
