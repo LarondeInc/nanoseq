@@ -42,6 +42,11 @@ if (!params.skip_basecalling) {
     } else if (file(params.guppy_config).exists()) {
         ch_guppy_config = Channel.fromPath(params.guppy_config)
     }
+    if (!params.barcode_kit) {
+        exit 1, 'No barcode kit specified!'
+    } else {
+        ch_barcode_kit = params.barcode_kit
+    }
 }
 
 ////////////////////////////////////////////////////
@@ -125,7 +130,7 @@ workflow NANOSEQ{
         /*
          * MODULE: Basecalling and demultipexing using Guppy
          */
-        GUPPY ( ch_input_path, ch_sample_name, ch_guppy_config.ifEmpty([]))
+        GUPPY ( ch_input_path, ch_sample_name, ch_guppy_config.ifEmpty([]), ch_barcode_kit)
         ch_guppy_summary = GUPPY.out.summary
         ch_software_versions = ch_software_versions.mix(GUPPY.out.versions.ifEmpty(null))
 
