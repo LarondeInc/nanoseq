@@ -39,7 +39,6 @@ process GUPPY {
 
     """
     guppy_barcoder \\
-	--device "cuda:all" \\
 	--input_path $save_path/pass \\
 	--save_path $save_path/demultiplex \\
 	--config configuration.cfg \\
