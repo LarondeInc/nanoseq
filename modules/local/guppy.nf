@@ -29,15 +29,13 @@ process GUPPY {
     """
     guppy_basecaller \\
         --input_path $fast5_dir_path \\
-	--save_path $save_path \\
+	    --save_path $save_path \\
         --compress_fastq \\
         --recursive \\
-	--do_read_splitting \\
-	--min_score_read_splitting 58 \\
+	    --do_read_splitting \\
+	    --min_score_read_splitting 58 \\
         $config
-    """
-
-    """
+    
     guppy_barcoder \\
 	--input_path $save_path/pass \\
 	--save_path $save_path/demultiplex \\
