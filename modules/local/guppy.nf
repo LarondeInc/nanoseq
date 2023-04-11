@@ -29,7 +29,7 @@ process GUPPY {
     """
     guppy_basecaller \\
         --input_path $fast5_dir_path \\
-	    --save_path $save_path \\
+	    --save_path $fast5_dir_path/outdir \\
         --compress_fastq \\
         --recursive \\
 	    --do_read_splitting \\
@@ -37,7 +37,7 @@ process GUPPY {
         $config
     
     guppy_barcoder \\
-	--input_path $save_path/pass \\
+	--input_path $fast5_dir_path/outdir/pass \\
 	--save_path $save_path/demultiplex \\
 	--config configuration.cfg \\
 	--barcode_kits $barcode_kit
