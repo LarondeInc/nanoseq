@@ -1,4 +1,4 @@
-process GUPPY {
+process GUPPY_BARCODER {
     label 'process_medium'
 
     if (params.guppy_gpu) {
@@ -27,15 +27,6 @@ process GUPPY {
     def config   = ""
     if (params.guppy_config) config = file(params.guppy_config).exists() ? "--config ./$guppy_config" : "--config $params.guppy_config"
     """
-    guppy_basecaller \\
-        --input_path $fast5_dir_path \\
-	--save_path $fast5_dir_path/outdir \\
-        --compress_fastq \\
-        --recursive \\
-	--do_read_splitting \\
-	--min_score_read_splitting 58 \\
-        $config
-     
     guppy_barcoder \\
 	--input_path $fast5_dir_path/outdir/pass \\
 	--save_path $save_path/demultiplex \\

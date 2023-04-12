@@ -58,6 +58,7 @@ if (!params.skip_basecalling) {
 ////////////////////////////////////////////////////
 
 include { GUPPY                 } from '../modules/local/guppy'
+//include { GUPPY_BARCODER        } from '../modules/local/guppy_barcoder'
 
 /*
  * SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -147,7 +148,9 @@ workflow NANOSEQ{
             //.join(ch_sample, by: 1) // join on barcode
             .map { it -> [ it[2], it[1], it[3], it[4], it[5], it[6] ] }
             .set { ch_fastq }
-        if (params.output_demultiplex_fast5) {
+        
+	//GUPPY_BARCODER ( ch_input_path, ch_sample_name, ch_guppy_config.ifEmpty([]), ch_barcode_kit )
+	if (params.output_demultiplex_fast5) {
             /*
             * MODULE: Demultiplex fast5 files using ont_fast5_api/demux_fast5
             */
