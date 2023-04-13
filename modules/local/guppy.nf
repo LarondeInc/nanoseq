@@ -35,12 +35,6 @@ process GUPPY {
 	--do_read_splitting \\
 	--min_score_read_splitting 58 \\
         $config
-     
-    guppy_barcoder \\
-	--input_path $fast5_dir_path/outdir/pass \\
-	--save_path $save_path/demultiplex \\
-	--config configuration.cfg \\
-	--barcode_kits $barcode_kit
     """
 }
 
