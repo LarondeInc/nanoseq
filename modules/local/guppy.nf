@@ -29,7 +29,7 @@ process GUPPY {
     """
     guppy_basecaller \\
         --input_path $fast5_dir_path \\
-	--save_path $fast5_dir_path/outdir \\
+	--save_path $fast5_dir_path/fastq \\
         --compress_fastq \\
         --recursive \\
 	--do_read_splitting \\
