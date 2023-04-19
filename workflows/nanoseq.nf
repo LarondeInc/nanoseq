@@ -57,7 +57,7 @@ if (!params.skip_basecalling) {
 /* --    IMPORT LOCAL MODULES/SUBWORKFLOWS     -- */
 ////////////////////////////////////////////////////
 
-include { GUPPY                 } from '../modules/local/guppy
+include { GUPPY                 } from '../modules/local/guppy'
 //include { GUPPY_BARCODER        } from '../modules/local/guppy_barcoder'
 
 /*/
