@@ -27,7 +27,7 @@ process GUPPY {
     path "versions.yml"                        , emit: versions
 
     script:
-    def fast5_dir_path = workflow.profile.contains('test') ? "input_path" : "$input_path"
+    def fast5_dir = workflow.profile.contains('test') ? "input_path" : "$input_path"
     def save_path = "./fastq"
     def barcode_kit = params.barcode_kit ? "--barcode_kits $params.barcode_kit" : ""
     def config   = ""
