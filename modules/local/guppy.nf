@@ -1,6 +1,5 @@
 
 params.options = [:]
-def options    = initOptions(params.options)
 
 process GUPPY {
     label 'process_medium'
