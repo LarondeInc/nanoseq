@@ -53,7 +53,7 @@ process GUPPY {
             cat \$dir/*.fastq.gz > ../fastq/\$dir.fastq.gz
         done
     else
-        cat *.fastq.gz > ../fastq/${meta.id}.fastq.gz
+        cat *.fastq.gz > ../fastq/${meta}.fastq.gz
     fi
 
     """
