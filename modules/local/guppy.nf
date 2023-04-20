@@ -41,6 +41,25 @@ process GUPPY {
 	--do_read_splitting \\
 	--min_score_read_splitting 58 \\
         $config
+
+    cat <<-END_VERSIONS > versions.yml
+    ${getProcessName(task.process)}:
+        ${getSoftwareName(task.process)}: \$(echo \$(guppy_basecaller --version 2>&1) | sed -r 's/.{81}//')
+    END_VERSIONS
+    ## Concatenate fastq files
+    mkdir fastq
+    cd basecalling
+    if [ "\$(find . -type d -name "barcode*" )" != "" ]
+    then
+        for dir in barcode*/
+        do
+            dir=\${dir%*/}
+            cat \$dir/*.fastq.gz > ../fastq/\$dir.fastq.gz
+        done
+    else
+        cat *.fastq.gz > ../fastq/${meta.id}.fastq.gz
+    fi
+
     """
 }
 
