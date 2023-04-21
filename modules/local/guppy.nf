@@ -27,24 +27,31 @@ process GUPPY {
     path "versions.yml"                        , emit: versions
 
     script:
-    def fast5_dir = workflow.profile.contains('test') ? "input_path" : "$input_path"
-    def save_path = "./fastq"
+    def fast5_dir_path = workflow.profile.contains('test') ? "input_path" : "$input_path"
     def barcode_kit = params.barcode_kit ? "--barcode_kits $params.barcode_kit" : ""
     def config   = ""
     if (params.guppy_config) config = file(params.guppy_config).exists() ? "--config ./$guppy_config" : "--config $params.guppy_config"
     """
     guppy_basecaller \\
-        --input_path $fast5_dir \\
+        --input_path $fast5_dir_path \\
 	--save_path ./basecalling \\
         --compress_fastq \\
         --recursive \\
 	--do_read_splitting \\
 	--min_score_read_splitting 58 \\
         $config
+    
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        guppy: \$(echo \$(guppy_basecaller --version 2>&1) | sed -r 's/.{81}//')
+    END_VERSIONS
+
 
     ## Concatenate fastq files
     mkdir fastq
     cd basecalling
+    ls *
+    pwd
     if [ "\$(find . -type d -name "barcode*" )" != "" ]
     then
         for dir in barcode*/
