@@ -34,11 +34,11 @@ process GUPPY {
     """
     guppy_basecaller \\
         --input_path $fast5_dir_path \\
-	--save_path ./basecalling \\
+	    --save_path ./basecalling \\
         --compress_fastq \\
         --recursive \\
-	--do_read_splitting \\
-	--min_score_read_splitting 58 \\
+	    --do_read_splitting \\
+	    --min_score_read_splitting 58 \\
         $config
     
     cat <<-END_VERSIONS > versions.yml
