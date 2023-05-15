@@ -50,7 +50,8 @@ process GUPPY {
     ## Concatenate fastq files
     mkdir fastq
     cd basecalling
-    ls completed/*
+    echo $PWD
+    ls *
     pwd
     if [ "\$(find . -type d -name "barcode*" )" != "" ]
     then
