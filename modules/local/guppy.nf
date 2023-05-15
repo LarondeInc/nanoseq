@@ -35,12 +35,16 @@ process GUPPY {
     guppy_basecaller \\
         --input_path $fast5_dir_path \\
         --save_path ./basecalling \\
-        --compress_fastq \\
         --recursive \\
 	    --do_read_splitting \\
 	    --min_score_read_splitting 58 \\
-        $config
-    
+        --calib_detect \\
+        --device 'cuda:all' \\
+        -x 'auto' \\
+        --max_read_split_depth 2 \\
+        --min_score_read_splitting 58 \\
+        -c $config
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         guppy: \$(echo \$(guppy_basecaller --version 2>&1) | sed -r 's/.{81}//')
