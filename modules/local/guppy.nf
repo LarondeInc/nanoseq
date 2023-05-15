@@ -43,7 +43,7 @@ process GUPPY {
         -x 'auto' \\
         --max_read_split_depth 2 \\
         --min_score_read_splitting 58 \\
-        -c $config
+        $config
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
